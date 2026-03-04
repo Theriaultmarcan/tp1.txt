@@ -1,18 +1,41 @@
 def tokenize(expression: str) -> list[str]:
     tokens = []
-    current_token = ""
+    token_courant = ""
     for char in expression:
         if char.isspace():
-            if current_token:
-                tokens.append(current_token)
-                current_token = ""
+            if token_courant:
+                tokens.append(token_courant)
+                token_courant = ""
         elif char in "+-*/()":
-            if current_token:
-                tokens.append(current_token)
-                current_token = ""
+            if token_courant:
+                tokens.append(token_courant)
+                token_courant = ""
             tokens.append(char)
         else:
-            current_token += char
-    if current_token:
-        tokens.append(current_token)
+            token_courant += char
+    if token_courant:
+        tokens.append(token_courant)
     return tokens
+
+def infix_to_postfix(tokens: list[str]) -> list[str]:
+    priorite = {"+": 1, "-": 1, "*": 2, "/": 2}
+    sortie = []
+    pile_ope = []
+    for token in tokens:
+        if token.isdigit():
+            sortie.append(token)
+        elif token in priorite:
+            while (pile_ope and pile_ope[-1] != "(" and
+                   priorite[pile_ope[-1]] >= priorite[token]):
+                sortie.append(pile_ope.pop())
+            pile_ope.append(token)
+        elif token == "(":
+            pile_ope.append(token)
+        elif token == ")":
+            while pile_ope and pile_ope[-1] != "(":
+                sortie.append(pile_ope.pop())
+            if pile_ope:
+                pile_ope.pop() 
+    while pile_ope:
+        sortie.append(pile_ope.pop())
+    return sortie
