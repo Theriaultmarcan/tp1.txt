@@ -39,3 +39,21 @@ def infix_to_postfix(tokens: list[str]) -> list[str]:
     while pile_ope:
         sortie.append(pile_ope.pop())
     return sortie
+
+def evaluate_postfix(tokens: list[str]) -> float:
+    pile = []
+    for token in tokens:
+        if token.isdigit():
+            pile.append(float(token))
+        else:
+            b = pile.pop()
+            a = pile.pop()
+            if token == "+":
+                pile.append(a + b)
+            elif token == "-":
+                pile.append(a - b)
+            elif token == "*":
+                pile.append(a * b)
+            elif token == "/":
+                pile.append(a / b)
+    return pile[0]
