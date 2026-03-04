@@ -22,30 +22,39 @@ def infix_to_postfix(tokens: list[str]) -> list[str]:
     sortie = []
     pile_ope = []
     for token in tokens:
-        if token.isdigit():
+        try :
+            float(token)
             sortie.append(token)
-        elif token in priorite:
-            while (pile_ope and pile_ope[-1] != "(" and
-                   priorite[pile_ope[-1]] >= priorite[token]):
-                sortie.append(pile_ope.pop())
-            pile_ope.append(token)
-        elif token == "(":
-            pile_ope.append(token)
-        elif token == ")":
-            while pile_ope and pile_ope[-1] != "(":
-                sortie.append(pile_ope.pop())
-            if pile_ope:
-                pile_ope.pop() 
-    while pile_ope:
-        sortie.append(pile_ope.pop())
+        except ValueError:
+            if token in priorite:
+                while (pile_ope and pile_ope[-1] != "(" and
+                       priorite[pile_ope[-1]] >= priorite[token]):
+                    sortie.append(pile_ope.pop())
+                pile_ope.append(token)
+            elif token == "(":
+                pile_ope.append(token)
+            elif token == ")":
+                while pile_ope and pile_ope[-1] != "(":
+                    sortie.append(pile_ope.pop())
+                if not pile_ope:
+                    raise ValueError("parenthèses non appariées")
+                pile_ope.pop()
+            else:
+                raise ValueError(f"token inconnu: {token}")
+        while pile_ope:
+            if pile_ope[-1] == "(":
+                raise ValueError("parenthèses non appariées")
+            sortie.append(pile_ope.pop())
     return sortie
 
 def evaluate_postfix(tokens: list[str]) -> float:
     pile = []
     for token in tokens:
-        if token.isdigit():
+        try:
             pile.append(float(token))
-        else:
+        except ValueError:
+            if len(pile) < 2:
+                raise ValueError("expression invalide, opérateur sans suffisamment d'opérandes")
             b = pile.pop()
             a = pile.pop()
             if token == "+":
@@ -55,5 +64,11 @@ def evaluate_postfix(tokens: list[str]) -> float:
             elif token == "*":
                 pile.append(a * b)
             elif token == "/":
+                if b == 0:
+                    raise ValueError("division par zéro")
                 pile.append(a / b)
+            else:
+                raise ValueError(f"opérateur inconnu: {token}")
+    if len(pile) != 1:
+        raise ValueError("expression invalide, opérandes restants dans la pile")
     return pile[0]
