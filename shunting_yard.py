@@ -1,16 +1,24 @@
 def tokenize(expression: str) -> list[str]:
     tokens = []
     token_courant = ""
-    for char in expression:
+    for i, char in enumerate(expression):
         if char.isspace():
             if token_courant:
                 tokens.append(token_courant)
                 token_courant = ""
-        elif char in "+-*/()":
+        elif char in "+*/()":
             if token_courant:
                 tokens.append(token_courant)
                 token_courant = ""
             tokens.append(char)
+        elif char == "-":
+            if token_courant:
+                tokens.append(token_courant)
+                token_courant = ""
+            if i == 0 or (tokens and tokens[-1] in "+-*/("):
+                token_courant += char
+            else:
+                tokens.append(char)
         else:
             token_courant += char
     if token_courant:
@@ -41,10 +49,10 @@ def infix_to_postfix(tokens: list[str]) -> list[str]:
                 pile_ope.pop()
             else:
                 raise ValueError(f"token inconnu: {token}")
-        while pile_ope:
-            if pile_ope[-1] == "(":
-                raise ValueError("parenthèses non appariées")
-            sortie.append(pile_ope.pop())
+    while pile_ope:
+        if pile_ope[-1] == "(":
+            raise ValueError("parenthèses non appariées")
+        sortie.append(pile_ope.pop())
     return sortie
 
 def evaluate_postfix(tokens: list[str]) -> float:
